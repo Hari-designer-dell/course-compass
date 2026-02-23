@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Clock, Star, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import type { Course } from "@/data/courses";
 
 interface CourseCardProps {
@@ -14,12 +15,15 @@ const levelColors: Record<string, string> = {
 };
 
 const CourseCard = ({ course, index }: CourseCardProps) => {
+  const navigate = useNavigate();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.08 }}
-      className="group bg-card rounded-xl overflow-hidden shadow-card hover:shadow-elevated transition-shadow duration-300 border border-border"
+      onClick={() => navigate(`/course/${course.id}`)}
+      className="group bg-card rounded-xl overflow-hidden shadow-card hover:shadow-elevated transition-shadow duration-300 border border-border cursor-pointer"
     >
       <div className="relative overflow-hidden h-44">
         <img
