@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Clock, Star, Users, BookOpen, PlayCircle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Clock, Star, Users, BookOpen, PlayCircle, CheckCircle2, Bookmark } from "lucide-react";
 import { courses } from "@/data/courses";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useBookmarks } from "@/hooks/use-bookmarks";
 
 const curriculumData: Record<string, { title: string; lessons: string[] }[]> = {
   "Web Development": [
@@ -30,6 +31,7 @@ const CourseDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [enrolled, setEnrolled] = useState(false);
+  const { toggle, isBookmarked } = useBookmarks();
 
   const course = courses.find((c) => c.id === id);
 
@@ -58,13 +60,21 @@ const CourseDetail = () => {
       <div className="relative h-72 md:h-80 overflow-hidden">
         <img src={course.image} alt={course.title} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/30 to-transparent" />
-        <div className="absolute top-0 left-0 right-0 p-6">
+        <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition-colors text-sm font-medium bg-foreground/20 backdrop-blur-sm rounded-lg px-3 py-2"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
+          </button>
+          <button
+            onClick={() => toggle(course.id)}
+            className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition-colors text-sm font-medium bg-foreground/20 backdrop-blur-sm rounded-lg px-3 py-2"
+            aria-label={isBookmarked(course.id) ? "Remove bookmark" : "Save course"}
+          >
+            <Bookmark className={`w-4 h-4 ${isBookmarked(course.id) ? "fill-primary-foreground" : ""}`} />
+            {isBookmarked(course.id) ? "Saved" : "Save"}
           </button>
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 max-w-5xl mx-auto">

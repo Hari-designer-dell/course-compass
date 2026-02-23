@@ -1,11 +1,13 @@
 import { motion } from "framer-motion";
-import { Clock, Star, Users } from "lucide-react";
+import { Clock, Star, Users, Bookmark } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Course } from "@/data/courses";
 
 interface CourseCardProps {
   course: Course;
   index: number;
+  isBookmarked?: boolean;
+  onToggleBookmark?: (courseId: string) => void;
 }
 
 const levelColors: Record<string, string> = {
@@ -14,7 +16,7 @@ const levelColors: Record<string, string> = {
   advanced: "bg-accent/10 text-accent",
 };
 
-const CourseCard = ({ course, index }: CourseCardProps) => {
+const CourseCard = ({ course, index, isBookmarked = false, onToggleBookmark }: CourseCardProps) => {
   const navigate = useNavigate();
 
   return (
@@ -37,6 +39,22 @@ const CourseCard = ({ course, index }: CourseCardProps) => {
             {course.level}
           </span>
         </div>
+        {onToggleBookmark && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleBookmark(course.id);
+            }}
+            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
+            aria-label={isBookmarked ? "Remove bookmark" : "Save course"}
+          >
+            <Bookmark
+              className={`w-4 h-4 transition-colors ${
+                isBookmarked ? "fill-primary text-primary" : "text-muted-foreground"
+              }`}
+            />
+          </button>
+        )}
       </div>
       <div className="p-5">
         <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1.5">{course.category}</p>
