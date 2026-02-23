@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, SlidersHorizontal, Bookmark } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import CourseCard from "./CourseCard";
 import type { Course } from "@/data/courses";
 import { categories } from "@/data/courses";
+import { useBookmarks } from "@/hooks/use-bookmarks";
 
 interface RecommendationsProps {
   courses: Course[];
@@ -12,6 +14,8 @@ interface RecommendationsProps {
 
 const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
   const [filterCategory, setFilterCategory] = useState<string>("All");
+  const navigate = useNavigate();
+  const { toggle, isBookmarked } = useBookmarks();
 
   const displayed = filterCategory === "All"
     ? courses
@@ -35,9 +39,18 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
           <h1 className="font-display text-xl font-semibold text-foreground">
             Your <span className="text-gradient">Recommendations</span>
           </h1>
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
-            <SlidersHorizontal className="w-4 h-4" />
-            {displayed.length} courses
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate("/saved")}
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
+            >
+              <Bookmark className="w-4 h-4" />
+              Saved
+            </button>
+            <span className="text-muted-foreground text-sm flex items-center gap-1.5">
+              <SlidersHorizontal className="w-4 h-4" />
+              {displayed.length}
+            </span>
           </div>
         </div>
       </header>
@@ -66,7 +79,7 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
         {displayed.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayed.map((course, i) => (
-              <CourseCard key={course.id} course={course} index={i} />
+              <CourseCard key={course.id} course={course} index={i} isBookmarked={isBookmarked(course.id)} onToggleBookmark={toggle} />
             ))}
           </div>
         ) : (
