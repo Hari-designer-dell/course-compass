@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, Bookmark, ArrowLeft } from "lucide-react";
+import { GraduationCap, Bookmark, ArrowLeft } from "lucide-react";
 import CourseCard from "@/components/CourseCard";
 import { courses } from "@/data/courses";
 import { useBookmarks } from "@/hooks/use-bookmarks";

@@ -1,12 +1,12 @@
 import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, ChevronRight, Sparkles } from "lucide-react";
+import { BookOpen, ChevronRight, Sparkles, GraduationCap, Users } from "lucide-react";
 import QuizStep from "@/components/QuizStep";
 import Recommendations from "@/components/Recommendations";
 import { categories, skillLevels, learningStyles, getRecommendations, type Course } from "@/data/courses";
 
 const Index = () => {
-  const [step, setStep] = useState(0); // 0 = landing, 1-3 = quiz, 4 = results
+  const [step, setStep] = useState(0);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<string[]>([]);
   const [selectedStyle, setSelectedStyle] = useState<string[]>([]);
@@ -58,9 +58,10 @@ const Index = () => {
       <div className="min-h-screen bg-background flex flex-col">
         <header className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
           <div className="flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-primary" />
-            <span className="font-display text-xl font-semibold text-foreground">CourseMatch</span>
+            <GraduationCap className="w-6 h-6 text-primary" />
+            <span className="font-display text-xl font-semibold text-foreground">CourseRec</span>
           </div>
+          <span className="text-xs text-muted-foreground hidden sm:block">BCA 6th Sem · Major Project</span>
         </header>
 
         <main className="flex-1 flex items-center justify-center px-6">
@@ -79,14 +80,14 @@ const Index = () => {
               <Sparkles className="w-8 h-8 text-primary-foreground" />
             </motion.div>
 
-            <h1 className="font-display text-5xl md:text-6xl font-bold text-foreground mb-4 leading-tight">
-              Find your perfect
+            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 leading-tight">
+              Personalized Course
               <br />
-              <span className="text-gradient">learning path</span>
+              <span className="text-gradient">Recommendation System</span>
             </h1>
 
             <p className="text-muted-foreground text-lg md:text-xl mb-10 max-w-lg mx-auto leading-relaxed">
-              Answer three quick questions and we'll recommend courses tailored to your interests, level, and style.
+              Select your interests and we'll instantly match you with relevant courses using intelligent clustering — no more manual browsing.
             </p>
 
             <motion.button
@@ -99,7 +100,28 @@ const Index = () => {
               <ChevronRight className="w-5 h-5" />
             </motion.button>
 
-            <p className="text-muted-foreground text-sm mt-6">Takes less than 30 seconds</p>
+            <p className="text-muted-foreground text-sm mt-6">Select your interests → Get instant recommendations</p>
+
+            {/* Project Info */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="mt-16 border-t border-border pt-8"
+            >
+              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-medium">
+                CGC University, Mohali · Dept. of Computer Applications
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Supervised by <span className="text-foreground font-medium">Mr. Mohit Ruhil</span> · Professor
+              </p>
+              <div className="flex items-center justify-center gap-4 mt-3">
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Users className="w-3 h-3" /> Shweta · Shivani · Simarpreet Kaur
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">Batch 2023-26</p>
+            </motion.div>
           </motion.div>
         </main>
       </div>
@@ -110,8 +132,8 @@ const Index = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
         <div className="flex items-center gap-2">
-          <BookOpen className="w-6 h-6 text-primary" />
-          <span className="font-display text-xl font-semibold text-foreground">CourseMatch</span>
+          <GraduationCap className="w-6 h-6 text-primary" />
+          <span className="font-display text-xl font-semibold text-foreground">CourseRec</span>
         </div>
         <div className="flex items-center gap-2">
           {[1, 2, 3].map((s) => (
@@ -130,8 +152,8 @@ const Index = () => {
           {step === 1 && (
             <QuizStep
               key="categories"
-              title="What interests you?"
-              subtitle="Pick the topics you'd love to explore."
+              title="Select your interests"
+              subtitle="Choose the topics you'd like to explore courses in."
               options={categories}
               selected={selectedCategories}
               onSelect={toggleCategory}
@@ -141,8 +163,8 @@ const Index = () => {
           {step === 2 && (
             <QuizStep
               key="level"
-              title="What's your level?"
-              subtitle="We'll match courses to where you are."
+              title="What's your skill level?"
+              subtitle="We'll match courses to your current proficiency."
               options={["beginner", "intermediate", "advanced"]}
               selected={selectedLevel}
               onSelect={selectLevel}
@@ -151,7 +173,7 @@ const Index = () => {
           {step === 3 && (
             <QuizStep
               key="style"
-              title="How do you learn best?"
+              title="Preferred learning style?"
               subtitle="We'll prioritize the right format for you."
               options={learningStyles}
               selected={selectedStyle}
