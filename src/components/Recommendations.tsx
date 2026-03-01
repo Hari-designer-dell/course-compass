@@ -4,7 +4,6 @@ import { ArrowLeft, SlidersHorizontal, Bookmark, Search, X } from "lucide-react"
 import { useNavigate } from "react-router-dom";
 import CourseCard from "./CourseCard";
 import type { Course } from "@/data/courses";
-import { categories } from "@/data/courses";
 import { useBookmarks } from "@/hooks/use-bookmarks";
 
 interface RecommendationsProps {
@@ -13,29 +12,28 @@ interface RecommendationsProps {
 }
 
 const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
-  const [filterCategory, setFilterCategory] = useState<string>("All");
+  const [filterSubject, setFilterSubject] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { toggle, isBookmarked } = useBookmarks();
 
   const displayed = useMemo(() => {
     let filtered = courses;
-    if (filterCategory !== "All") {
-      filtered = filtered.filter((c) => c.category === filterCategory);
+    if (filterSubject !== "All") {
+      filtered = filtered.filter((c) => c.subject === filterSubject);
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (c) =>
-          c.title.toLowerCase().includes(q) ||
-          c.instructor.toLowerCase().includes(q) ||
-          c.tags.some((t) => t.toLowerCase().includes(q))
+          c.course_title.toLowerCase().includes(q) ||
+          c.subject.toLowerCase().includes(q)
       );
     }
     return filtered;
-  }, [courses, filterCategory, searchQuery]);
+  }, [courses, filterSubject, searchQuery]);
 
-  const availableCategories = ["All", ...Array.from(new Set(courses.map((c) => c.category)))];
+  const availableSubjects = ["All", ...Array.from(new Set(courses.map((c) => c.subject)))];
 
   return (
     <div className="min-h-screen bg-background">
@@ -76,7 +74,7 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by title, tag, or instructor..."
+            placeholder="Search by course title or subject..."
             className="w-full pl-11 pr-10 py-3 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all text-sm"
           />
           {searchQuery && (
@@ -94,17 +92,17 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
           animate={{ opacity: 1 }}
           className="flex flex-wrap gap-2 mb-8"
         >
-          {availableCategories.map((cat) => (
+          {availableSubjects.map((sub) => (
             <button
-              key={cat}
-              onClick={() => setFilterCategory(cat)}
+              key={sub}
+              onClick={() => setFilterSubject(sub)}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                filterCategory === cat
+                filterSubject === sub
                   ? "bg-gradient-warm text-primary-foreground shadow-elevated"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
               }`}
             >
-              {cat}
+              {sub}
             </button>
           ))}
         </motion.div>
