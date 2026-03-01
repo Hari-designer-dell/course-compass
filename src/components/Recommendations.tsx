@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, SlidersHorizontal, Bookmark } from "lucide-react";
+import { ArrowLeft, SlidersHorizontal, Bookmark, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CourseCard from "./CourseCard";
 import type { Course } from "@/data/courses";
@@ -14,12 +14,26 @@ interface RecommendationsProps {
 
 const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
   const [filterCategory, setFilterCategory] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { toggle, isBookmarked } = useBookmarks();
 
-  const displayed = filterCategory === "All"
-    ? courses
-    : courses.filter((c) => c.category === filterCategory);
+  const displayed = useMemo(() => {
+    let filtered = courses;
+    if (filterCategory !== "All") {
+      filtered = filtered.filter((c) => c.category === filterCategory);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (c) =>
+          c.title.toLowerCase().includes(q) ||
+          c.instructor.toLowerCase().includes(q) ||
+          c.tags.some((t) => t.toLowerCase().includes(q))
+      );
+    }
+    return filtered;
+  }, [courses, filterCategory, searchQuery]);
 
   const availableCategories = ["All", ...Array.from(new Set(courses.map((c) => c.category)))];
 
@@ -56,6 +70,25 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-8">
+        <div className="relative mb-6">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by title, tag, or instructor..."
+            className="w-full pl-11 pr-10 py-3 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all text-sm"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
