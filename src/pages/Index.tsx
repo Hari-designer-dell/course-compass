@@ -1,20 +1,20 @@
 import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, ChevronRight, Sparkles, GraduationCap, Users } from "lucide-react";
+import { ChevronRight, Sparkles, GraduationCap, Users } from "lucide-react";
 import QuizStep from "@/components/QuizStep";
 import Recommendations from "@/components/Recommendations";
-import { categories, skillLevels, learningStyles, getRecommendations, type Course } from "@/data/courses";
+import { subjects, skillLevels, learningStyles, getRecommendations, type Course } from "@/data/courses";
 
 const Index = () => {
   const [step, setStep] = useState(0);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<string[]>([]);
   const [selectedStyle, setSelectedStyle] = useState<string[]>([]);
   const [results, setResults] = useState<Course[]>([]);
 
-  const toggleCategory = useCallback((cat: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+  const toggleSubject = useCallback((sub: string) => {
+    setSelectedSubjects((prev) =>
+      prev.includes(sub) ? prev.filter((s) => s !== sub) : [...prev, sub]
     );
   }, []);
 
@@ -30,7 +30,7 @@ const Index = () => {
     if (step < 3) {
       setStep(step + 1);
     } else {
-      const recs = getRecommendations(selectedCategories, selectedLevel[0] || "", selectedStyle[0] || "");
+      const recs = getRecommendations(selectedSubjects, selectedLevel[0] || "", selectedStyle[0] || "");
       setResults(recs);
       setStep(4);
     }
@@ -38,14 +38,14 @@ const Index = () => {
 
   const handleReset = () => {
     setStep(0);
-    setSelectedCategories([]);
+    setSelectedSubjects([]);
     setSelectedLevel([]);
     setSelectedStyle([]);
     setResults([]);
   };
 
   const canProceed =
-    (step === 1 && selectedCategories.length > 0) ||
+    (step === 1 && selectedSubjects.length > 0) ||
     (step === 2 && selectedLevel.length > 0) ||
     (step === 3 && selectedStyle.length > 0);
 
@@ -102,7 +102,6 @@ const Index = () => {
 
             <p className="text-muted-foreground text-sm mt-6">Select your interests → Get instant recommendations</p>
 
-            {/* Project Info */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -151,12 +150,12 @@ const Index = () => {
         <AnimatePresence mode="wait">
           {step === 1 && (
             <QuizStep
-              key="categories"
+              key="subjects"
               title="Select your interests"
-              subtitle="Choose the topics you'd like to explore courses in."
-              options={categories}
-              selected={selectedCategories}
-              onSelect={toggleCategory}
+              subtitle="Choose the subjects you'd like to explore courses in."
+              options={subjects}
+              selected={selectedSubjects}
+              onSelect={toggleSubject}
               multiSelect
             />
           )}
@@ -165,7 +164,7 @@ const Index = () => {
               key="level"
               title="What's your skill level?"
               subtitle="We'll match courses to your current proficiency."
-              options={["beginner", "intermediate", "advanced"]}
+              options={skillLevels}
               selected={selectedLevel}
               onSelect={selectLevel}
             />

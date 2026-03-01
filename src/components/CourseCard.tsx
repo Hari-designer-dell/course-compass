@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { Clock, Star, Users, Bookmark } from "lucide-react";
+import { Clock, Users, Bookmark, BookOpen, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Course } from "@/data/courses";
+import { getPopScore } from "@/data/courses";
 
 interface CourseCardProps {
   course: Course;
@@ -11,13 +12,20 @@ interface CourseCardProps {
 }
 
 const levelColors: Record<string, string> = {
-  beginner: "bg-green-100 text-green-800",
-  intermediate: "bg-primary/10 text-primary",
-  advanced: "bg-accent/10 text-accent",
+  "All Levels": "bg-primary/10 text-primary",
+  "Beginner Level": "bg-green-100 text-green-800",
+  "Intermediate Level": "bg-amber-100 text-amber-800",
+  "Expert Level": "bg-red-100 text-red-800",
 };
 
 const CourseCard = ({ course, index, isBookmarked = false, onToggleBookmark }: CourseCardProps) => {
   const navigate = useNavigate();
+  const popScore = getPopScore(course);
+
+  const formatSubscribers = (n: number) => {
+    if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+    return n.toString();
+  };
 
   return (
     <motion.div
@@ -30,12 +38,12 @@ const CourseCard = ({ course, index, isBookmarked = false, onToggleBookmark }: C
       <div className="relative overflow-hidden h-44">
         <img
           src={course.image}
-          alt={course.title}
+          alt={course.course_title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
         <div className="absolute top-3 left-3">
-          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${levelColors[course.level]}`}>
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${levelColors[course.level] || "bg-secondary text-secondary-foreground"}`}>
             {course.level}
           </span>
         </div>
@@ -57,31 +65,36 @@ const CourseCard = ({ course, index, isBookmarked = false, onToggleBookmark }: C
         )}
       </div>
       <div className="p-5">
-        <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1.5">{course.category}</p>
-        <h3 className="font-display text-lg font-semibold text-foreground mb-2 leading-snug group-hover:text-primary transition-colors">
-          {course.title}
-        </h3>
-        <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{course.description}</p>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Star className="w-4 h-4 text-primary fill-primary" />
-            {course.rating}
-          </span>
-          <span className="flex items-center gap-1">
-            <Users className="w-4 h-4" />
-            {(course.enrolled / 1000).toFixed(1)}k
-          </span>
-          <span className="flex items-center gap-1">
-            <Clock className="w-4 h-4" />
-            {course.duration}
+        <div className="flex items-center justify-between mb-1.5">
+          <p className="text-xs font-semibold text-primary uppercase tracking-wider">{course.subject}</p>
+          <span className={`text-xs font-semibold ${course.is_paid ? "text-foreground" : "text-green-600"}`}>
+            {course.is_paid ? `$${course.price}` : "Free"}
           </span>
         </div>
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {course.tags.map((tag) => (
-            <span key={tag} className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-md">
-              {tag}
-            </span>
-          ))}
+        <h3 className="font-display text-lg font-semibold text-foreground mb-3 leading-snug group-hover:text-primary transition-colors line-clamp-2">
+          {course.course_title}
+        </h3>
+        <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+          <span className="flex items-center gap-1">
+            <Users className="w-3.5 h-3.5" />
+            {formatSubscribers(course.num_subscribers)}
+          </span>
+          <span className="flex items-center gap-1">
+            <BookOpen className="w-3.5 h-3.5" />
+            {course.num_lectures} lectures
+          </span>
+          <span className="flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5" />
+            {course.content_duration}h
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            {course.num_reviews.toLocaleString()} reviews
+          </span>
+          <span className="text-xs font-medium text-primary">
+            Score: {popScore.toFixed(0)}
+          </span>
         </div>
       </div>
     </motion.div>
