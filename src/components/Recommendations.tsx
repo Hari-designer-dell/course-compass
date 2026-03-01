@@ -14,12 +14,26 @@ interface RecommendationsProps {
 
 const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
   const [filterCategory, setFilterCategory] = useState<string>("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { toggle, isBookmarked } = useBookmarks();
 
-  const displayed = filterCategory === "All"
-    ? courses
-    : courses.filter((c) => c.category === filterCategory);
+  const displayed = useMemo(() => {
+    let filtered = courses;
+    if (filterCategory !== "All") {
+      filtered = filtered.filter((c) => c.category === filterCategory);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (c) =>
+          c.title.toLowerCase().includes(q) ||
+          c.instructor.toLowerCase().includes(q) ||
+          c.tags.some((t) => t.toLowerCase().includes(q))
+      );
+    }
+    return filtered;
+  }, [courses, filterCategory, searchQuery]);
 
   const availableCategories = ["All", ...Array.from(new Set(courses.map((c) => c.category)))];
 
