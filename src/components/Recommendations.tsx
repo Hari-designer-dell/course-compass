@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, SlidersHorizontal, Bookmark } from "lucide-react";
+import { ArrowLeft, SlidersHorizontal, Bookmark, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CourseCard from "./CourseCard";
 import type { Course } from "@/data/courses";
