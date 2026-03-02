@@ -37,7 +37,7 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-10">
+      <header className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -48,18 +48,18 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
               Retake Quiz
             </button>
           </div>
-          <h1 className="font-display text-xl font-semibold text-foreground">
+          <h1 className="font-display text-xl font-bold text-foreground tracking-tight">
             Your <span className="text-gradient">Recommendations</span>
           </h1>
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/saved")}
-              className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm font-medium"
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-sm font-medium"
             >
               <Bookmark className="w-4 h-4" />
               Saved
             </button>
-            <span className="text-muted-foreground text-sm flex items-center gap-1.5">
+            <span className="text-muted-foreground text-sm flex items-center gap-1.5 font-mono">
               <SlidersHorizontal className="w-4 h-4" />
               {displayed.length}
             </span>
@@ -75,7 +75,7 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by course title or subject..."
-            className="w-full pl-11 pr-10 py-3 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all text-sm"
+            className="w-full pl-11 pr-10 py-3 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all text-sm"
           />
           {searchQuery && (
             <button
@@ -96,10 +96,10 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
             <button
               key={sub}
               onClick={() => setFilterSubject(sub)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+              className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${
                 filterSubject === sub
                   ? "bg-gradient-warm text-primary-foreground shadow-elevated"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border"
               }`}
             >
               {sub}
