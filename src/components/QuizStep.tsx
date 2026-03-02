@@ -18,7 +18,7 @@ const QuizStep = ({ title, subtitle, options, selected, onSelect, multiSelect = 
       transition={{ duration: 0.4 }}
       className="w-full max-w-2xl mx-auto"
     >
-      <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2 tracking-tight">{title}</h2>
+      <h2 className="font-display text-3xl md:text-4xl font-semibold text-foreground mb-2">{title}</h2>
       <p className="text-muted-foreground mb-8 text-lg">{subtitle}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {options.map((option) => {
@@ -29,9 +29,9 @@ const QuizStep = ({ title, subtitle, options, selected, onSelect, multiSelect = 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onSelect(option)}
-              className={`p-4 rounded-xl border-2 text-left font-body text-sm font-semibold transition-all duration-200 ${
+              className={`p-4 rounded-lg border-2 text-left font-body text-sm font-medium transition-all duration-200 ${
                 isSelected
-                  ? "border-primary bg-primary/10 text-foreground shadow-glow"
+                  ? "border-primary bg-primary/10 text-foreground shadow-elevated"
                   : "border-border bg-card text-foreground hover:border-primary/40 shadow-card"
               }`}
             >
@@ -61,7 +61,7 @@ const QuizStep = ({ title, subtitle, options, selected, onSelect, multiSelect = 
         })}
       </div>
       {multiSelect && (
-        <p className="text-muted-foreground text-sm mt-4 font-mono">Select as many as you like</p>
+        <p className="text-muted-foreground text-sm mt-4">Select as many as you like</p>
       )}
     </motion.div>
   );

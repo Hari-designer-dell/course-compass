@@ -12,10 +12,10 @@ interface CourseCardProps {
 }
 
 const levelColors: Record<string, string> = {
-  "All Levels": "bg-primary/15 text-primary border border-primary/20",
-  "Beginner Level": "bg-green-500/15 text-green-400 border border-green-500/20",
-  "Intermediate Level": "bg-amber-500/15 text-amber-400 border border-amber-500/20",
-  "Expert Level": "bg-primary/15 text-primary border border-primary/20",
+  "All Levels": "bg-primary/10 text-primary",
+  "Beginner Level": "bg-green-100 text-green-800",
+  "Intermediate Level": "bg-amber-100 text-amber-800",
+  "Expert Level": "bg-red-100 text-red-800",
 };
 
 const CourseCard = ({ course, index, isBookmarked = false, onToggleBookmark }: CourseCardProps) => {
@@ -33,7 +33,7 @@ const CourseCard = ({ course, index, isBookmarked = false, onToggleBookmark }: C
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.08 }}
       onClick={() => navigate(`/course/${course.id}`)}
-      className="group bg-card rounded-xl overflow-hidden shadow-card hover:shadow-glow transition-all duration-300 border border-border hover:border-primary/30 cursor-pointer"
+      className="group bg-card rounded-xl overflow-hidden shadow-card hover:shadow-elevated transition-shadow duration-300 border border-border cursor-pointer"
     >
       <div className="relative overflow-hidden h-44">
         <img
@@ -42,9 +42,8 @@ const CourseCard = ({ course, index, isBookmarked = false, onToggleBookmark }: C
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
         <div className="absolute top-3 left-3">
-          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${levelColors[course.level] || "bg-secondary text-secondary-foreground"}`}>
+          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${levelColors[course.level] || "bg-secondary text-secondary-foreground"}`}>
             {course.level}
           </span>
         </div>
@@ -54,7 +53,7 @@ const CourseCard = ({ course, index, isBookmarked = false, onToggleBookmark }: C
               e.stopPropagation();
               onToggleBookmark(course.id);
             }}
-            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-primary/20 transition-colors"
+            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors"
             aria-label={isBookmarked ? "Remove bookmark" : "Save course"}
           >
             <Bookmark
@@ -67,22 +66,22 @@ const CourseCard = ({ course, index, isBookmarked = false, onToggleBookmark }: C
       </div>
       <div className="p-5">
         <div className="flex items-center justify-between mb-1.5">
-          <p className="text-[10px] font-bold text-primary uppercase tracking-[0.15em] font-mono">{course.subject}</p>
-          <span className={`text-xs font-bold ${course.is_paid ? "text-foreground" : "text-green-400"}`}>
+          <p className="text-xs font-semibold text-primary uppercase tracking-wider">{course.subject}</p>
+          <span className={`text-xs font-semibold ${course.is_paid ? "text-foreground" : "text-green-600"}`}>
             {course.is_paid ? `$${course.price}` : "Free"}
           </span>
         </div>
-        <h3 className="font-display text-base font-bold text-foreground mb-3 leading-snug group-hover:text-primary transition-colors line-clamp-2">
+        <h3 className="font-display text-lg font-semibold text-foreground mb-3 leading-snug group-hover:text-primary transition-colors line-clamp-2">
           {course.course_title}
         </h3>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
           <span className="flex items-center gap-1">
             <Users className="w-3.5 h-3.5" />
             {formatSubscribers(course.num_subscribers)}
           </span>
           <span className="flex items-center gap-1">
             <BookOpen className="w-3.5 h-3.5" />
-            {course.num_lectures}
+            {course.num_lectures} lectures
           </span>
           <span className="flex items-center gap-1">
             <Clock className="w-3.5 h-3.5" />
@@ -90,12 +89,12 @@ const CourseCard = ({ course, index, isBookmarked = false, onToggleBookmark }: C
           </span>
         </div>
         <div className="flex items-center justify-between pt-3 border-t border-border">
-          <span className="text-[10px] text-muted-foreground font-mono">
+          <span className="text-xs text-muted-foreground">
             {course.num_reviews.toLocaleString()} reviews
           </span>
-          <span className="flex items-center gap-1 text-xs font-bold text-primary">
+          <span className="flex items-center gap-1 text-xs font-medium text-primary">
             <TrendingUp className="w-3 h-3" />
-            {popScore.toFixed(0)}
+            Score: {popScore.toFixed(0)}
           </span>
         </div>
       </div>
