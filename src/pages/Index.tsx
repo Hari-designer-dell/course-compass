@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, Sparkles, GraduationCap, Users } from "lucide-react";
+import { ChevronRight, Sparkles, GraduationCap, Users, Code2, Zap, BarChart3 } from "lucide-react";
 import QuizStep from "@/components/QuizStep";
 import Recommendations from "@/components/Recommendations";
 import { subjects, skillLevels, learningStyles, getRecommendations, type Course } from "@/data/courses";
@@ -55,60 +55,85 @@ const Index = () => {
 
   if (step === 0) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <header className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
-          <div className="flex items-center gap-2">
-            <GraduationCap className="w-6 h-6 text-primary" />
-            <span className="font-display text-xl font-semibold text-foreground">CourseRec</span>
+      <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+        {/* Background grid */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: 'linear-gradient(hsl(0 85% 55%) 1px, transparent 1px), linear-gradient(90deg, hsl(0 85% 55%) 1px, transparent 1px)',
+          backgroundSize: '60px 60px'
+        }} />
+        {/* Glow orb */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px]" />
+
+        <header className="relative px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-warm flex items-center justify-center">
+              <GraduationCap className="w-4.5 h-4.5 text-primary-foreground" />
+            </div>
+            <span className="font-display text-xl font-bold text-foreground tracking-tight">CourseRec</span>
           </div>
-          <span className="text-xs text-muted-foreground hidden sm:block">BCA 6th Sem · Major Project</span>
+          <span className="text-xs text-muted-foreground hidden sm:block font-mono">BCA 6th Sem · Major Project</span>
         </header>
 
-        <main className="flex-1 flex items-center justify-center px-6">
+        <main className="relative flex-1 flex items-center justify-center px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center max-w-2xl"
+            className="text-center max-w-3xl"
           >
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="w-16 h-16 rounded-2xl bg-gradient-warm flex items-center justify-center mx-auto mb-8 shadow-elevated"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-8"
             >
-              <Sparkles className="w-8 h-8 text-primary-foreground" />
+              <Zap className="w-3.5 h-3.5" />
+              Intelligent Clustering Engine
             </motion.div>
 
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 leading-tight">
+            <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight">
               Personalized Course
               <br />
-              <span className="text-gradient">Recommendation System</span>
+              <span className="text-gradient">Recommendation</span>
+              <br />
+              System
             </h1>
 
-            <p className="text-muted-foreground text-lg md:text-xl mb-10 max-w-lg mx-auto leading-relaxed">
-              Select your interests and we'll instantly match you with relevant courses using intelligent clustering — no more manual browsing.
+            <p className="text-muted-foreground text-lg md:text-xl mb-12 max-w-xl mx-auto leading-relaxed">
+              Select your interests and we'll match you with relevant courses using
+              <span className="text-foreground font-medium"> popularity-based scoring</span> — no more manual browsing.
             </p>
 
             <motion.button
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => setStep(1)}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-warm text-primary-foreground font-semibold rounded-xl shadow-elevated hover:shadow-lg transition-shadow text-lg"
+              className="group inline-flex items-center gap-3 px-10 py-5 bg-gradient-warm text-primary-foreground font-bold rounded-xl shadow-elevated hover:shadow-glow transition-all text-lg animate-pulse-glow"
             >
               Get Started
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </motion.button>
 
-            <p className="text-muted-foreground text-sm mt-6">Select your interests → Get instant recommendations</p>
+            <div className="flex items-center justify-center gap-8 mt-12">
+              {[
+                { icon: Code2, label: "4 Subjects" },
+                { icon: BarChart3, label: "Pop. Scoring" },
+                { icon: Users, label: "Real Data" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-2 text-muted-foreground text-sm">
+                  <Icon className="w-4 h-4 text-primary/70" />
+                  <span>{label}</span>
+                </div>
+              ))}
+            </div>
 
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
-              className="mt-16 border-t border-border pt-8"
+              className="mt-20 border-t border-border pt-8"
             >
-              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-medium">
+              <p className="text-xs text-muted-foreground mb-3 uppercase tracking-[0.2em] font-medium font-mono">
                 CGC University, Mohali · Dept. of Computer Applications
               </p>
               <p className="text-xs text-muted-foreground">
@@ -119,7 +144,7 @@ const Index = () => {
                   <Users className="w-3 h-3" /> Shweta · Shivani · Simarpreet Kaur
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">Batch 2023-26</p>
+              <p className="text-xs text-muted-foreground mt-2 font-mono">Batch 2023-26</p>
             </motion.div>
           </motion.div>
         </main>
@@ -128,25 +153,33 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
-        <div className="flex items-center gap-2">
-          <GraduationCap className="w-6 h-6 text-primary" />
-          <span className="font-display text-xl font-semibold text-foreground">CourseRec</span>
+    <div className="min-h-screen bg-background flex flex-col relative">
+      {/* Subtle grid */}
+      <div className="absolute inset-0 opacity-[0.02]" style={{
+        backgroundImage: 'linear-gradient(hsl(0 85% 55%) 1px, transparent 1px), linear-gradient(90deg, hsl(0 85% 55%) 1px, transparent 1px)',
+        backgroundSize: '60px 60px'
+      }} />
+
+      <header className="relative px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-gradient-warm flex items-center justify-center">
+            <GraduationCap className="w-4.5 h-4.5 text-primary-foreground" />
+          </div>
+          <span className="font-display text-xl font-bold text-foreground tracking-tight">CourseRec</span>
         </div>
         <div className="flex items-center gap-2">
           {[1, 2, 3].map((s) => (
             <div
               key={s}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                s <= step ? "w-8 bg-gradient-warm" : "w-8 bg-secondary"
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                s <= step ? "w-10 bg-gradient-warm" : "w-10 bg-secondary"
               }`}
             />
           ))}
         </div>
       </header>
 
-      <main className="flex-1 flex items-center justify-center px-6 pb-24">
+      <main className="relative flex-1 flex items-center justify-center px-6 pb-24">
         <AnimatePresence mode="wait">
           {step === 1 && (
             <QuizStep
@@ -182,7 +215,7 @@ const Index = () => {
         </AnimatePresence>
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-background/80 backdrop-blur-sm border-t border-border">
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-background/90 backdrop-blur-md border-t border-border">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <button
             onClick={() => setStep(step - 1)}
@@ -195,7 +228,7 @@ const Index = () => {
             whileTap={canProceed ? { scale: 0.97 } : {}}
             onClick={handleNext}
             disabled={!canProceed}
-            className={`inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+            className={`inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold transition-all ${
               canProceed
                 ? "bg-gradient-warm text-primary-foreground shadow-elevated"
                 : "bg-secondary text-muted-foreground cursor-not-allowed"
