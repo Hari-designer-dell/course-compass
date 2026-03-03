@@ -184,6 +184,8 @@ const Index = () => {
               }`}
             />
           ))}
+          </div>
+          <ThemeToggle />
         </div>
       </header>
 
