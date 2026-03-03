@@ -93,7 +93,26 @@ const ParticlesBackground = () => {
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      const mouse = mouseRef.current;
+
       for (const p of particles) {
+        // Mouse interaction: gentle repel
+        if (mouse.active) {
+          const dx = p.x - mouse.x;
+          const dy = p.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const radius = 150;
+          if (dist < radius && dist > 0) {
+            const force = (1 - dist / radius) * 0.4;
+            p.vx += (dx / dist) * force;
+            p.vy += (dy / dist) * force;
+          }
+        }
+
+        // Dampen velocity so particles settle back
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+
         p.x += p.vx;
         p.y += p.vy;
         p.rotation += p.rotationSpeed;
