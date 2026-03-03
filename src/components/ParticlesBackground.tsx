@@ -158,12 +158,32 @@ const ParticlesBackground = () => {
         }
       }
 
+      // Draw lines from cursor to nearby dots
+      if (mouse.active) {
+        for (const p of particles) {
+          if (p.type !== "dot") continue;
+          const dx = p.x - mouse.x;
+          const dy = p.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 180) {
+            ctx.beginPath();
+            ctx.moveTo(mouse.x, mouse.y);
+            ctx.lineTo(p.x, p.y);
+            ctx.strokeStyle = `hsla(0, 85%, 55%, ${0.1 * (1 - dist / 180)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
       animFrameRef.current = requestAnimationFrame(animate);
     };
     animate();
 
     return () => {
       window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseleave", onMouseLeave);
       cancelAnimationFrame(animFrameRef.current);
     };
   }, []);
