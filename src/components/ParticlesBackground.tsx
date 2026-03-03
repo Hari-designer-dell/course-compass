@@ -49,10 +49,8 @@ const ParticlesBackground = () => {
       mouseRef.current.active = false;
     };
     window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseleave", onMouseLeave);
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
 
     const resize = () => {
       canvas.width = window.innerWidth;
