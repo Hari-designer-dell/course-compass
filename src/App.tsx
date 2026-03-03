@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Index from "./pages/Index";
 import CourseDetail from "./pages/CourseDetail";
+import About from "./pages/About";
 import SavedCourses from "./pages/SavedCourses";
 import NotFound from "./pages/NotFound";
 
