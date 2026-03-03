@@ -174,7 +174,8 @@ const Index = () => {
           </div>
           <span className="font-display text-xl font-bold text-foreground tracking-tight">CourseRec</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
           {[1, 2, 3].map((s) => (
             <div
               key={s}
