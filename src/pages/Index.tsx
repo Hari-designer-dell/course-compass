@@ -75,7 +75,10 @@ const Index = () => {
             </div>
             <span className="font-display text-xl font-bold text-foreground tracking-tight">CourseRec</span>
           </div>
-          <span className="text-xs text-muted-foreground hidden sm:block font-mono">BCA 6th Sem · Major Project</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground hidden sm:block font-mono">BCA 6th Sem · Major Project</span>
+            <ThemeToggle />
+          </div>
         </header>
 
         <main className="relative flex-1 flex items-center justify-center px-6">
