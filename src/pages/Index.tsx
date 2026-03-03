@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight, Sparkles, GraduationCap, Users, Code2, Zap, BarChart3 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import QuizStep from "@/components/QuizStep";
 import Recommendations from "@/components/Recommendations";
@@ -74,7 +75,10 @@ const Index = () => {
             </div>
             <span className="font-display text-xl font-bold text-foreground tracking-tight">CourseRec</span>
           </div>
-          <span className="text-xs text-muted-foreground hidden sm:block font-mono">BCA 6th Sem · Major Project</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground hidden sm:block font-mono">BCA 6th Sem · Major Project</span>
+            <ThemeToggle />
+          </div>
         </header>
 
         <main className="relative flex-1 flex items-center justify-center px-6">
@@ -170,7 +174,8 @@ const Index = () => {
           </div>
           <span className="font-display text-xl font-bold text-foreground tracking-tight">CourseRec</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
           {[1, 2, 3].map((s) => (
             <div
               key={s}
@@ -179,6 +184,8 @@ const Index = () => {
               }`}
             />
           ))}
+          </div>
+          <ThemeToggle />
         </div>
       </header>
 
