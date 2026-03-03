@@ -32,12 +32,25 @@ const ParticlesBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const animFrameRef = useRef<number>(0);
+  const mouseRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    const onMouseMove = (e: MouseEvent) => {
+      mouseRef.current.x = e.clientX;
+      mouseRef.current.y = e.clientY;
+      mouseRef.current.active = true;
+    };
+    const onMouseLeave = () => {
+      mouseRef.current.active = false;
+    };
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseleave", onMouseLeave);
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -80,7 +93,26 @@ const ParticlesBackground = () => {
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      const mouse = mouseRef.current;
+
       for (const p of particles) {
+        // Mouse interaction: gentle repel
+        if (mouse.active) {
+          const dx = p.x - mouse.x;
+          const dy = p.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const radius = 150;
+          if (dist < radius && dist > 0) {
+            const force = (1 - dist / radius) * 0.4;
+            p.vx += (dx / dist) * force;
+            p.vy += (dy / dist) * force;
+          }
+        }
+
+        // Dampen velocity so particles settle back
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+
         p.x += p.vx;
         p.y += p.vy;
         p.rotation += p.rotationSpeed;
@@ -126,12 +158,32 @@ const ParticlesBackground = () => {
         }
       }
 
+      // Draw lines from cursor to nearby dots
+      if (mouse.active) {
+        for (const p of particles) {
+          if (p.type !== "dot") continue;
+          const dx = p.x - mouse.x;
+          const dy = p.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 180) {
+            ctx.beginPath();
+            ctx.moveTo(mouse.x, mouse.y);
+            ctx.lineTo(p.x, p.y);
+            ctx.strokeStyle = `hsla(0, 85%, 55%, ${0.1 * (1 - dist / 180)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
       animFrameRef.current = requestAnimationFrame(animate);
     };
     animate();
 
     return () => {
       window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseleave", onMouseLeave);
       cancelAnimationFrame(animFrameRef.current);
     };
   }, []);
