@@ -57,6 +57,8 @@ const Index = () => {
   if (step === 0) {
     return (
       <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+        {/* Animated particles + code snippets */}
+        <ParticlesBackground />
         {/* Background grid */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: 'linear-gradient(hsl(0 85% 55%) 1px, transparent 1px), linear-gradient(90deg, hsl(0 85% 55%) 1px, transparent 1px)',
