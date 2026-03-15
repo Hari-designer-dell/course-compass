@@ -134,6 +134,7 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
           ))}
         </motion.div>
 
+        {displayed.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayed.map((course, i) => (
               <CourseCard key={course.id} course={course} index={i} isBookmarked={isBookmarked(course.id)} onToggleBookmark={toggle} />
