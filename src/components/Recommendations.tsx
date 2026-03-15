@@ -13,6 +13,7 @@ interface RecommendationsProps {
 
 const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
   const [filterSubject, setFilterSubject] = useState<string>("All");
+  const [filterPurpose, setFilterPurpose] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { toggle, isBookmarked } = useBookmarks();
@@ -21,6 +22,9 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
     let filtered = courses;
     if (filterSubject !== "All") {
       filtered = filtered.filter((c) => c.subject === filterSubject);
+    }
+    if (filterPurpose !== "All") {
+      filtered = filtered.filter((c) => c.purpose === filterPurpose);
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -31,9 +35,10 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
       );
     }
     return filtered;
-  }, [courses, filterSubject, searchQuery]);
+  }, [courses, filterSubject, filterPurpose, searchQuery]);
 
   const availableSubjects = ["All", ...Array.from(new Set(courses.map((c) => c.subject)))];
+  const availablePurposes = ["All", ...Array.from(new Set(courses.map((c) => c.purpose)))];
 
   return (
     <div className="min-h-screen bg-background">
@@ -103,6 +108,28 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
               }`}
             >
               {sub}
+            </button>
+          ))}
+        </motion.div>
+
+        {/* Purpose filters */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex flex-wrap gap-2 mb-8"
+        >
+          <span className="text-xs text-muted-foreground font-mono uppercase tracking-wider self-center mr-2">Purpose:</span>
+          {availablePurposes.map((purpose) => (
+            <button
+              key={purpose}
+              onClick={() => setFilterPurpose(purpose)}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                filterPurpose === purpose
+                  ? "bg-primary/20 text-primary border border-primary/40"
+                  : "bg-secondary/50 text-secondary-foreground hover:bg-secondary/80 border border-border"
+              }`}
+            >
+              {purpose}
             </button>
           ))}
         </motion.div>

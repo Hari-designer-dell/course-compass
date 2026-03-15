@@ -1,18 +1,21 @@
 import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, Sparkles, GraduationCap, Users, Code2, Zap, BarChart3 } from "lucide-react";
+import { ChevronRight, Sparkles, GraduationCap, Users, Code2, Zap, BarChart3, Target } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import QuizStep from "@/components/QuizStep";
 import Recommendations from "@/components/Recommendations";
-import { subjects, skillLevels, learningStyles, getRecommendations, type Course } from "@/data/courses";
+import { subjects, skillLevels, learningStyles, purposes, getRecommendations, type Course } from "@/data/courses";
 
 const Index = () => {
   const [step, setStep] = useState(0);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<string[]>([]);
   const [selectedStyle, setSelectedStyle] = useState<string[]>([]);
+  const [selectedPurpose, setSelectedPurpose] = useState<string[]>([]);
   const [results, setResults] = useState<Course[]>([]);
+
+  const totalSteps = 4;
 
   const toggleSubject = useCallback((sub: string) => {
     setSelectedSubjects((prev) =>
@@ -28,13 +31,22 @@ const Index = () => {
     setSelectedStyle([style]);
   }, []);
 
+  const selectPurpose = useCallback((purpose: string) => {
+    setSelectedPurpose([purpose]);
+  }, []);
+
   const handleNext = () => {
-    if (step < 3) {
+    if (step < totalSteps) {
       setStep(step + 1);
     } else {
-      const recs = getRecommendations(selectedSubjects, selectedLevel[0] || "", selectedStyle[0] || "");
+      const recs = getRecommendations(
+        selectedSubjects,
+        selectedLevel[0] || "",
+        selectedStyle[0] || "",
+        selectedPurpose[0] || ""
+      );
       setResults(recs);
-      setStep(4);
+      setStep(totalSteps + 1);
     }
   };
 
@@ -43,29 +55,28 @@ const Index = () => {
     setSelectedSubjects([]);
     setSelectedLevel([]);
     setSelectedStyle([]);
+    setSelectedPurpose([]);
     setResults([]);
   };
 
   const canProceed =
     (step === 1 && selectedSubjects.length > 0) ||
-    (step === 2 && selectedLevel.length > 0) ||
-    (step === 3 && selectedStyle.length > 0);
+    (step === 2 && selectedPurpose.length > 0) ||
+    (step === 3 && selectedLevel.length > 0) ||
+    (step === 4 && selectedStyle.length > 0);
 
-  if (step === 4) {
+  if (step === totalSteps + 1) {
     return <Recommendations courses={results} onReset={handleReset} />;
   }
 
   if (step === 0) {
     return (
       <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
-        {/* Animated particles + code snippets */}
         <ParticlesBackground />
-        {/* Background grid */}
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: 'linear-gradient(hsl(0 85% 55%) 1px, transparent 1px), linear-gradient(90deg, hsl(0 85% 55%) 1px, transparent 1px)',
           backgroundSize: '60px 60px'
         }} />
-        {/* Glow orb */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px]" />
 
         <header className="relative px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
@@ -123,7 +134,8 @@ const Index = () => {
 
             <div className="flex items-center justify-center gap-8 mt-12">
               {[
-                { icon: Code2, label: "4 Subjects" },
+                { icon: Code2, label: "5 Subjects" },
+                { icon: Target, label: "Purpose-Based" },
                 { icon: BarChart3, label: "Pop. Scoring" },
                 { icon: Users, label: "Real Data" },
               ].map(({ icon: Icon, label }) => (
@@ -161,7 +173,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative">
-      {/* Subtle grid */}
       <div className="absolute inset-0 opacity-[0.02]" style={{
         backgroundImage: 'linear-gradient(hsl(0 85% 55%) 1px, transparent 1px), linear-gradient(90deg, hsl(0 85% 55%) 1px, transparent 1px)',
         backgroundSize: '60px 60px'
@@ -176,11 +187,11 @@ const Index = () => {
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-          {[1, 2, 3].map((s) => (
+          {[1, 2, 3, 4].map((s) => (
             <div
               key={s}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                s <= step ? "w-10 bg-gradient-warm" : "w-10 bg-secondary"
+                s <= step ? "w-8 bg-gradient-warm" : "w-8 bg-secondary"
               }`}
             />
           ))}
@@ -204,6 +215,16 @@ const Index = () => {
           )}
           {step === 2 && (
             <QuizStep
+              key="purpose"
+              title="What's your purpose?"
+              subtitle="Tell us why you want to study — we'll recommend accordingly."
+              options={purposes}
+              selected={selectedPurpose}
+              onSelect={selectPurpose}
+            />
+          )}
+          {step === 3 && (
+            <QuizStep
               key="level"
               title="What's your skill level?"
               subtitle="We'll match courses to your current proficiency."
@@ -212,7 +233,7 @@ const Index = () => {
               onSelect={selectLevel}
             />
           )}
-          {step === 3 && (
+          {step === 4 && (
             <QuizStep
               key="style"
               title="Preferred learning style?"
@@ -244,7 +265,7 @@ const Index = () => {
                 : "bg-secondary text-muted-foreground cursor-not-allowed"
             }`}
           >
-            {step === 3 ? "See Recommendations" : "Continue"}
+            {step === totalSteps ? "See Recommendations" : "Continue"}
             <ChevronRight className="w-4 h-4" />
           </motion.button>
         </div>
