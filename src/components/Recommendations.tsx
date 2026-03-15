@@ -112,7 +112,28 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
           ))}
         </motion.div>
 
-        {displayed.length > 0 ? (
+        {/* Purpose filters */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex flex-wrap gap-2 mb-8"
+        >
+          <span className="text-xs text-muted-foreground font-mono uppercase tracking-wider self-center mr-2">Purpose:</span>
+          {availablePurposes.map((purpose) => (
+            <button
+              key={purpose}
+              onClick={() => setFilterPurpose(purpose)}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                filterPurpose === purpose
+                  ? "bg-primary/20 text-primary border border-primary/40"
+                  : "bg-secondary/50 text-secondary-foreground hover:bg-secondary/80 border border-border"
+              }`}
+            >
+              {purpose}
+            </button>
+          ))}
+        </motion.div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayed.map((course, i) => (
               <CourseCard key={course.id} course={course} index={i} isBookmarked={isBookmarked(course.id)} onToggleBookmark={toggle} />
