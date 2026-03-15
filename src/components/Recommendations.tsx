@@ -13,6 +13,7 @@ interface RecommendationsProps {
 
 const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
   const [filterSubject, setFilterSubject] = useState<string>("All");
+  const [filterPurpose, setFilterPurpose] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { toggle, isBookmarked } = useBookmarks();
@@ -21,6 +22,9 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
     let filtered = courses;
     if (filterSubject !== "All") {
       filtered = filtered.filter((c) => c.subject === filterSubject);
+    }
+    if (filterPurpose !== "All") {
+      filtered = filtered.filter((c) => c.purpose === filterPurpose);
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -31,9 +35,10 @@ const Recommendations = ({ courses, onReset }: RecommendationsProps) => {
       );
     }
     return filtered;
-  }, [courses, filterSubject, searchQuery]);
+  }, [courses, filterSubject, filterPurpose, searchQuery]);
 
   const availableSubjects = ["All", ...Array.from(new Set(courses.map((c) => c.subject)))];
+  const availablePurposes = ["All", ...Array.from(new Set(courses.map((c) => c.purpose)))];
 
   return (
     <div className="min-h-screen bg-background">
