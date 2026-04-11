@@ -24,8 +24,7 @@ interface AIRecommendation {
 }
 
 const TOTAL_STEPS = 8;
-
-const Index = () => {
+const REVIEW_STEP = 9;
   const [step, setStep] = useState(0);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [selectedPurpose, setSelectedPurpose] = useState<string[]>([]);
