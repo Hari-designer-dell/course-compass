@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, Sparkles, GraduationCap, Users, Code2, Zap, BarChart3, Target, Brain } from "lucide-react";
+import { ChevronRight, Sparkles, GraduationCap, Users, Code2, Zap, BarChart3, Target, Brain, Check } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import QuizStep from "@/components/QuizStep";
