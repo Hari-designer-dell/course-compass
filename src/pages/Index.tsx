@@ -39,6 +39,8 @@ const Index = () => {
   const [selectedProject, setSelectedProject] = useState<string[]>([]);
   const [selectedLang, setSelectedLang] = useState<string[]>([]);
 
+  const [editingFromReview, setEditingFromReview] = useState(false);
+
   const [aiResults, setAiResults] = useState<AIRecommendation[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
