@@ -5,6 +5,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import QuizStep from "@/components/QuizStep";
 import AIRecommendations from "@/components/AIRecommendations";
+import QuizReview from "@/components/QuizReview";
 import {
   subjects, purposes, skillLevels, learningStyles,
   timeAvailability, budgetOptions, careerObjectives,
