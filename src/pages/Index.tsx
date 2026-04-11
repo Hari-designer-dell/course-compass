@@ -157,7 +157,7 @@ const Index = () => {
     (step === 8 && selectedCert.length > 0 && selectedProject.length > 0 && selectedLang.length > 0);
 
   // Results screen
-  if (step === TOTAL_STEPS + 1) {
+  if (step === TOTAL_STEPS + 2) {
     return (
       <AIRecommendations
         aiResults={aiResults}
@@ -170,6 +170,34 @@ const Index = () => {
           skillLevel: selectedLevel[0] || "",
         }}
       />
+    );
+  }
+
+  // Review screen
+  if (step === REVIEW_STEP) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col relative">
+        <header className="relative px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-warm flex items-center justify-center">
+              <GraduationCap className="w-4.5 h-4.5 text-primary-foreground" />
+            </div>
+            <span className="font-display text-xl font-bold text-foreground tracking-tight">CourseRec</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground font-mono">Review</span>
+            <ThemeToggle />
+          </div>
+        </header>
+        <main className="flex-1 flex items-center justify-center px-6 pb-12">
+          <QuizReview
+            answers={reviewAnswers}
+            onEditStep={handleEditFromReview}
+            onConfirm={handleSubmit}
+            isLoading={isLoading}
+          />
+        </main>
+      </div>
     );
   }
 
