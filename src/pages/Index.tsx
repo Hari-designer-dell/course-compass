@@ -1,74 +1,153 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, Sparkles, GraduationCap, Users, Code2, Zap, BarChart3, Target } from "lucide-react";
+import { ChevronRight, Sparkles, GraduationCap, Users, Code2, Zap, BarChart3, Target, Brain } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import QuizStep from "@/components/QuizStep";
-import Recommendations from "@/components/Recommendations";
-import { subjects, skillLevels, learningStyles, purposes, getRecommendations, type Course } from "@/data/courses";
+import AIRecommendations from "@/components/AIRecommendations";
+import {
+  subjects, purposes, skillLevels, learningStyles,
+  timeAvailability, budgetOptions, careerObjectives,
+  durationPreferences, languagePreferences, certificationRequirements,
+  projectPreferences, subInterests, type QuizAnswers,
+} from "@/data/quizOptions";
+import { courses } from "@/data/courses";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+interface AIRecommendation {
+  id: string;
+  reason: string;
+  key_benefits: string[];
+  match_score: number;
+}
+
+const TOTAL_STEPS = 8;
 
 const Index = () => {
   const [step, setStep] = useState(0);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+  const [selectedPurpose, setSelectedPurpose] = useState<string[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<string[]>([]);
   const [selectedStyle, setSelectedStyle] = useState<string[]>([]);
-  const [selectedPurpose, setSelectedPurpose] = useState<string[]>([]);
-  const [results, setResults] = useState<Course[]>([]);
+  const [selectedTime, setSelectedTime] = useState<string[]>([]);
+  const [selectedBudget, setSelectedBudget] = useState<string[]>([]);
+  const [selectedCareer, setSelectedCareer] = useState<string[]>([]);
+  const [selectedDuration, setSelectedDuration] = useState<string[]>([]);
+  const [selectedSubInterest, setSelectedSubInterest] = useState<string[]>([]);
+  const [selectedCert, setSelectedCert] = useState<string[]>([]);
+  const [selectedProject, setSelectedProject] = useState<string[]>([]);
+  const [selectedLang, setSelectedLang] = useState<string[]>([]);
 
-  const totalSteps = 4;
+  const [aiResults, setAiResults] = useState<AIRecommendation[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const toggleSubject = useCallback((sub: string) => {
-    setSelectedSubjects((prev) =>
-      prev.includes(sub) ? prev.filter((s) => s !== sub) : [...prev, sub]
-    );
-  }, []);
+  const subInterestOptions = useMemo(() => {
+    if (selectedSubjects.length === 0) return [];
+    const opts = new Set<string>();
+    selectedSubjects.forEach((s) => {
+      (subInterests[s] || []).forEach((si) => opts.add(si));
+    });
+    return Array.from(opts);
+  }, [selectedSubjects]);
 
-  const selectLevel = useCallback((level: string) => {
-    setSelectedLevel([level]);
-  }, []);
+  const toggleMulti = useCallback(
+    (setter: React.Dispatch<React.SetStateAction<string[]>>) => (val: string) => {
+      setter((prev) => (prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val]));
+    },
+    []
+  );
 
-  const selectStyle = useCallback((style: string) => {
-    setSelectedStyle([style]);
-  }, []);
+  const selectSingle = useCallback(
+    (setter: React.Dispatch<React.SetStateAction<string[]>>) => (val: string) => {
+      setter([val]);
+    },
+    []
+  );
 
-  const selectPurpose = useCallback((purpose: string) => {
-    setSelectedPurpose([purpose]);
-  }, []);
-
-  const handleNext = () => {
-    if (step < totalSteps) {
+  const handleNext = async () => {
+    if (step < TOTAL_STEPS) {
       setStep(step + 1);
     } else {
-      const recs = getRecommendations(
-        selectedSubjects,
-        selectedLevel[0] || "",
-        selectedStyle[0] || "",
-        selectedPurpose[0] || ""
-      );
-      setResults(recs);
-      setStep(totalSteps + 1);
+      // Submit to AI
+      setIsLoading(true);
+      setStep(TOTAL_STEPS + 1);
+      const answers: QuizAnswers = {
+        subjects: selectedSubjects,
+        purpose: selectedPurpose[0] || "",
+        skillLevel: selectedLevel[0] || "",
+        learningStyle: selectedStyle[0] || "",
+        timeAvailability: selectedTime[0] || "",
+        budget: selectedBudget[0] || "",
+        subInterest: selectedSubInterest.join(", "),
+        careerObjective: selectedCareer[0] || "",
+        durationPreference: selectedDuration[0] || "",
+        languagePreference: selectedLang[0] || "",
+        certificationRequirement: selectedCert[0] || "",
+        projectPreference: selectedProject[0] || "",
+      };
+      try {
+        const { data, error } = await supabase.functions.invoke("recommend-courses", {
+          body: { answers, courses },
+        });
+        if (error) throw error;
+        setAiResults(data.recommendations || data);
+      } catch (err: any) {
+        console.error(err);
+        toast.error("Failed to get AI recommendations. Showing popularity-based results.");
+        // Fallback
+        setAiResults(null);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   const handleReset = () => {
     setStep(0);
     setSelectedSubjects([]);
+    setSelectedPurpose([]);
     setSelectedLevel([]);
     setSelectedStyle([]);
-    setSelectedPurpose([]);
-    setResults([]);
+    setSelectedTime([]);
+    setSelectedBudget([]);
+    setSelectedCareer([]);
+    setSelectedDuration([]);
+    setSelectedSubInterest([]);
+    setSelectedCert([]);
+    setSelectedProject([]);
+    setSelectedLang([]);
+    setAiResults(null);
   };
 
   const canProceed =
     (step === 1 && selectedSubjects.length > 0) ||
     (step === 2 && selectedPurpose.length > 0) ||
-    (step === 3 && selectedLevel.length > 0) ||
-    (step === 4 && selectedStyle.length > 0);
+    (step === 3 && selectedSubInterest.length > 0) ||
+    (step === 4 && selectedLevel.length > 0) ||
+    (step === 5 && selectedStyle.length > 0) ||
+    (step === 6 && selectedTime.length > 0 && selectedBudget.length > 0) ||
+    (step === 7 && selectedCareer.length > 0 && selectedDuration.length > 0) ||
+    (step === 8 && selectedCert.length > 0 && selectedProject.length > 0 && selectedLang.length > 0);
 
-  if (step === totalSteps + 1) {
-    return <Recommendations courses={results} onReset={handleReset} />;
+  // Results screen
+  if (step === TOTAL_STEPS + 1) {
+    return (
+      <AIRecommendations
+        aiResults={aiResults}
+        isLoading={isLoading}
+        courses={courses}
+        onReset={handleReset}
+        answers={{
+          subjects: selectedSubjects,
+          purpose: selectedPurpose[0] || "",
+          skillLevel: selectedLevel[0] || "",
+        }}
+      />
+    );
   }
 
+  // Landing
   if (step === 0) {
     return (
       <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
@@ -105,8 +184,8 @@ const Index = () => {
               transition={{ delay: 0.2, duration: 0.5 }}
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-8"
             >
-              <Zap className="w-3.5 h-3.5" />
-              Intelligent Clustering Engine
+              <Brain className="w-3.5 h-3.5" />
+              AI-Powered Recommendation Engine
             </motion.div>
 
             <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-[1.1] tracking-tight">
@@ -118,8 +197,7 @@ const Index = () => {
             </h1>
 
             <p className="text-muted-foreground text-lg md:text-xl mb-12 max-w-xl mx-auto leading-relaxed">
-              Select your interests and we'll match you with relevant courses using
-              <span className="text-foreground font-medium"> popularity-based scoring</span> — no more manual browsing.
+              Answer 8 quick questions and our <span className="text-foreground font-medium">AI engine</span> will analyze 12 factors to find your perfect courses.
             </p>
 
             <motion.button
@@ -132,11 +210,11 @@ const Index = () => {
               <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </motion.button>
 
-            <div className="flex items-center justify-center gap-8 mt-12">
+            <div className="flex items-center justify-center gap-8 mt-12 flex-wrap">
               {[
-                { icon: Code2, label: "5 Subjects" },
-                { icon: Target, label: "Purpose-Based" },
-                { icon: BarChart3, label: "Pop. Scoring" },
+                { icon: Brain, label: "AI Analysis" },
+                { icon: Target, label: "12 Factors" },
+                { icon: BarChart3, label: "Match Scoring" },
                 { icon: Users, label: "Real Data" },
               ].map(({ icon: Icon, label }) => (
                 <div key={label} className="flex items-center gap-2 text-muted-foreground text-sm">
@@ -171,6 +249,7 @@ const Index = () => {
     );
   }
 
+  // Quiz steps
   return (
     <div className="min-h-screen bg-background flex flex-col relative">
       <div className="absolute inset-0 opacity-[0.02]" style={{
@@ -186,16 +265,17 @@ const Index = () => {
           <span className="font-display text-xl font-bold text-foreground tracking-tight">CourseRec</span>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-          {[1, 2, 3, 4].map((s) => (
-            <div
-              key={s}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                s <= step ? "w-8 bg-gradient-warm" : "w-8 bg-secondary"
-              }`}
-            />
-          ))}
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((s) => (
+              <div
+                key={s}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  s <= step ? "w-6 bg-gradient-warm" : "w-6 bg-secondary"
+                }`}
+              />
+            ))}
           </div>
+          <span className="text-xs text-muted-foreground font-mono">{step}/{TOTAL_STEPS}</span>
           <ThemeToggle />
         </div>
       </header>
@@ -203,45 +283,38 @@ const Index = () => {
       <main className="relative flex-1 flex items-center justify-center px-6 pb-24">
         <AnimatePresence mode="wait">
           {step === 1 && (
-            <QuizStep
-              key="subjects"
-              title="Select your interests"
-              subtitle="Choose the subjects you'd like to explore courses in."
-              options={subjects}
-              selected={selectedSubjects}
-              onSelect={toggleSubject}
-              multiSelect
-            />
+            <QuizStep key="subjects" title="What subjects interest you?" subtitle="Choose one or more domains to explore." options={[...subjects]} selected={selectedSubjects} onSelect={toggleMulti(setSelectedSubjects)} multiSelect />
           )}
           {step === 2 && (
-            <QuizStep
-              key="purpose"
-              title="What's your purpose?"
-              subtitle="Tell us why you want to study — we'll recommend accordingly."
-              options={purposes}
-              selected={selectedPurpose}
-              onSelect={selectPurpose}
-            />
+            <QuizStep key="purpose" title="What's your purpose?" subtitle="Tell us why you want to study." options={[...purposes]} selected={selectedPurpose} onSelect={selectSingle(setSelectedPurpose)} />
           )}
           {step === 3 && (
-            <QuizStep
-              key="level"
-              title="What's your skill level?"
-              subtitle="We'll match courses to your current proficiency."
-              options={skillLevels}
-              selected={selectedLevel}
-              onSelect={selectLevel}
-            />
+            <QuizStep key="subinterest" title="Any specific sub-interest?" subtitle="Narrow down your focus area." options={subInterestOptions} selected={selectedSubInterest} onSelect={toggleMulti(setSelectedSubInterest)} multiSelect />
           )}
           {step === 4 && (
-            <QuizStep
-              key="style"
-              title="Preferred learning style?"
-              subtitle="We'll prioritize the right format for you."
-              options={learningStyles}
-              selected={selectedStyle}
-              onSelect={selectStyle}
-            />
+            <QuizStep key="level" title="What's your skill level?" subtitle="We'll match courses to your proficiency." options={[...skillLevels]} selected={selectedLevel} onSelect={selectSingle(setSelectedLevel)} />
+          )}
+          {step === 5 && (
+            <QuizStep key="style" title="Preferred learning style?" subtitle="We'll prioritize the right format." options={[...learningStyles]} selected={selectedStyle} onSelect={selectSingle(setSelectedStyle)} />
+          )}
+          {step === 6 && (
+            <div className="w-full max-w-2xl space-y-8">
+              <QuizStep key="time" title="How much time can you dedicate?" subtitle="Per week availability." options={[...timeAvailability]} selected={selectedTime} onSelect={selectSingle(setSelectedTime)} />
+              <QuizStep key="budget" title="What's your budget?" subtitle="We'll filter courses accordingly." options={[...budgetOptions]} selected={selectedBudget} onSelect={selectSingle(setSelectedBudget)} />
+            </div>
+          )}
+          {step === 7 && (
+            <div className="w-full max-w-2xl space-y-8">
+              <QuizStep key="career" title="Career objective?" subtitle="What do you want to achieve?" options={[...careerObjectives]} selected={selectedCareer} onSelect={selectSingle(setSelectedCareer)} />
+              <QuizStep key="duration" title="Preferred course duration?" subtitle="How long should the course be?" options={[...durationPreferences]} selected={selectedDuration} onSelect={selectSingle(setSelectedDuration)} />
+            </div>
+          )}
+          {step === 8 && (
+            <div className="w-full max-w-2xl space-y-8">
+              <QuizStep key="cert" title="Do you need a certificate?" subtitle="Some courses offer completion certificates." options={[...certificationRequirements]} selected={selectedCert} onSelect={selectSingle(setSelectedCert)} />
+              <QuizStep key="project" title="Learning approach preference?" subtitle="How do you like to learn best?" options={[...projectPreferences]} selected={selectedProject} onSelect={selectSingle(setSelectedProject)} />
+              <QuizStep key="lang" title="Language preference?" subtitle="Choose your preferred course language." options={[...languagePreferences]} selected={selectedLang} onSelect={selectSingle(setSelectedLang)} />
+            </div>
           )}
         </AnimatePresence>
       </main>
@@ -265,8 +338,17 @@ const Index = () => {
                 : "bg-secondary text-muted-foreground cursor-not-allowed"
             }`}
           >
-            {step === totalSteps ? "See Recommendations" : "Continue"}
-            <ChevronRight className="w-4 h-4" />
+            {step === TOTAL_STEPS ? (
+              <>
+                <Sparkles className="w-4 h-4" />
+                Get AI Recommendations
+              </>
+            ) : (
+              <>
+                Continue
+                <ChevronRight className="w-4 h-4" />
+              </>
+            )}
           </motion.button>
         </div>
       </div>
