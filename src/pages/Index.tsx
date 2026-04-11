@@ -1,10 +1,11 @@
 import { useState, useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, Sparkles, GraduationCap, Users, Code2, Zap, BarChart3, Target, Brain } from "lucide-react";
+import { ChevronRight, Sparkles, GraduationCap, Users, Code2, Zap, BarChart3, Target, Brain, Check } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import ParticlesBackground from "@/components/ParticlesBackground";
 import QuizStep from "@/components/QuizStep";
 import AIRecommendations from "@/components/AIRecommendations";
+import QuizReview from "@/components/QuizReview";
 import {
   subjects, purposes, skillLevels, learningStyles,
   timeAvailability, budgetOptions, careerObjectives,
@@ -23,7 +24,7 @@ interface AIRecommendation {
 }
 
 const TOTAL_STEPS = 8;
-
+const REVIEW_STEP = 9;
 const Index = () => {
   const [step, setStep] = useState(0);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
@@ -38,6 +39,8 @@ const Index = () => {
   const [selectedCert, setSelectedCert] = useState<string[]>([]);
   const [selectedProject, setSelectedProject] = useState<string[]>([]);
   const [selectedLang, setSelectedLang] = useState<string[]>([]);
+
+  const [editingFromReview, setEditingFromReview] = useState(false);
 
   const [aiResults, setAiResults] = useState<AIRecommendation[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -66,42 +69,65 @@ const Index = () => {
   );
 
   const handleNext = async () => {
+    if (editingFromReview) {
+      setEditingFromReview(false);
+      setStep(REVIEW_STEP);
+      return;
+    }
     if (step < TOTAL_STEPS) {
       setStep(step + 1);
-    } else {
-      // Submit to AI
-      setIsLoading(true);
-      setStep(TOTAL_STEPS + 1);
-      const answers: QuizAnswers = {
-        subjects: selectedSubjects,
-        purpose: selectedPurpose[0] || "",
-        skillLevel: selectedLevel[0] || "",
-        learningStyle: selectedStyle[0] || "",
-        timeAvailability: selectedTime[0] || "",
-        budget: selectedBudget[0] || "",
-        subInterest: selectedSubInterest.join(", "),
-        careerObjective: selectedCareer[0] || "",
-        durationPreference: selectedDuration[0] || "",
-        languagePreference: selectedLang[0] || "",
-        certificationRequirement: selectedCert[0] || "",
-        projectPreference: selectedProject[0] || "",
-      };
-      try {
-        const { data, error } = await supabase.functions.invoke("recommend-courses", {
-          body: { answers, courses },
-        });
-        if (error) throw error;
-        setAiResults(data.recommendations || data);
-      } catch (err: any) {
-        console.error(err);
-        toast.error("Failed to get AI recommendations. Showing popularity-based results.");
-        // Fallback
-        setAiResults(null);
-      } finally {
-        setIsLoading(false);
-      }
+    } else if (step === TOTAL_STEPS) {
+      setStep(REVIEW_STEP);
     }
   };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setStep(TOTAL_STEPS + 2);
+    const answers: QuizAnswers = {
+      subjects: selectedSubjects,
+      purpose: selectedPurpose[0] || "",
+      skillLevel: selectedLevel[0] || "",
+      learningStyle: selectedStyle[0] || "",
+      timeAvailability: selectedTime[0] || "",
+      budget: selectedBudget[0] || "",
+      subInterest: selectedSubInterest.join(", "),
+      careerObjective: selectedCareer[0] || "",
+      durationPreference: selectedDuration[0] || "",
+      languagePreference: selectedLang[0] || "",
+      certificationRequirement: selectedCert[0] || "",
+      projectPreference: selectedProject[0] || "",
+    };
+    try {
+      const { data, error } = await supabase.functions.invoke("recommend-courses", {
+        body: { answers, courses },
+      });
+      if (error) throw error;
+      setAiResults(data.recommendations || data);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Failed to get AI recommendations. Showing popularity-based results.");
+      setAiResults(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditFromReview = (targetStep: number) => {
+    setEditingFromReview(true);
+    setStep(targetStep);
+  };
+
+  const reviewAnswers = [
+    { step: 1, label: "Subjects", value: selectedSubjects.join(", ") },
+    { step: 2, label: "Purpose", value: selectedPurpose[0] || "" },
+    { step: 3, label: "Sub-interests", value: selectedSubInterest.join(", ") },
+    { step: 4, label: "Skill Level", value: selectedLevel[0] || "" },
+    { step: 5, label: "Learning Style", value: selectedStyle[0] || "" },
+    { step: 6, label: "Time & Budget", value: `${selectedTime[0] || ""} · ${selectedBudget[0] || ""}` },
+    { step: 7, label: "Career & Duration", value: `${selectedCareer[0] || ""} · ${selectedDuration[0] || ""}` },
+    { step: 8, label: "Cert / Project / Language", value: `${selectedCert[0] || ""} · ${selectedProject[0] || ""} · ${selectedLang[0] || ""}` },
+  ];
 
   const handleReset = () => {
     setStep(0);
@@ -131,7 +157,7 @@ const Index = () => {
     (step === 8 && selectedCert.length > 0 && selectedProject.length > 0 && selectedLang.length > 0);
 
   // Results screen
-  if (step === TOTAL_STEPS + 1) {
+  if (step === TOTAL_STEPS + 2) {
     return (
       <AIRecommendations
         aiResults={aiResults}
@@ -144,6 +170,34 @@ const Index = () => {
           skillLevel: selectedLevel[0] || "",
         }}
       />
+    );
+  }
+
+  // Review screen
+  if (step === REVIEW_STEP) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col relative">
+        <header className="relative px-6 py-5 flex items-center justify-between max-w-6xl mx-auto w-full">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-warm flex items-center justify-center">
+              <GraduationCap className="w-4.5 h-4.5 text-primary-foreground" />
+            </div>
+            <span className="font-display text-xl font-bold text-foreground tracking-tight">CourseRec</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground font-mono">Review</span>
+            <ThemeToggle />
+          </div>
+        </header>
+        <main className="flex-1 flex items-center justify-center px-6 pb-12">
+          <QuizReview
+            answers={reviewAnswers}
+            onEditStep={handleEditFromReview}
+            onConfirm={handleSubmit}
+            isLoading={isLoading}
+          />
+        </main>
+      </div>
     );
   }
 
@@ -322,10 +376,17 @@ const Index = () => {
       <div className="fixed bottom-0 left-0 right-0 p-6 bg-background/90 backdrop-blur-md border-t border-border">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <button
-            onClick={() => setStep(step - 1)}
+            onClick={() => {
+              if (editingFromReview) {
+                setEditingFromReview(false);
+                setStep(REVIEW_STEP);
+              } else {
+                setStep(step - 1);
+              }
+            }}
             className="text-muted-foreground hover:text-foreground transition-colors font-medium"
           >
-            Back
+            {editingFromReview ? "Cancel" : "Back"}
           </button>
           <motion.button
             whileHover={canProceed ? { scale: 1.03 } : {}}
@@ -338,10 +399,15 @@ const Index = () => {
                 : "bg-secondary text-muted-foreground cursor-not-allowed"
             }`}
           >
-            {step === TOTAL_STEPS ? (
+            {editingFromReview ? (
               <>
-                <Sparkles className="w-4 h-4" />
-                Get AI Recommendations
+                <Check className="w-4 h-4" />
+                Save & Review
+              </>
+            ) : step === TOTAL_STEPS ? (
+              <>
+                Review Answers
+                <ChevronRight className="w-4 h-4" />
               </>
             ) : (
               <>
