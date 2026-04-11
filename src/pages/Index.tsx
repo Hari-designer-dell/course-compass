@@ -376,10 +376,17 @@ const Index = () => {
       <div className="fixed bottom-0 left-0 right-0 p-6 bg-background/90 backdrop-blur-md border-t border-border">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <button
-            onClick={() => setStep(step - 1)}
+            onClick={() => {
+              if (editingFromReview) {
+                setEditingFromReview(false);
+                setStep(REVIEW_STEP);
+              } else {
+                setStep(step - 1);
+              }
+            }}
             className="text-muted-foreground hover:text-foreground transition-colors font-medium"
           >
-            Back
+            {editingFromReview ? "Cancel" : "Back"}
           </button>
           <motion.button
             whileHover={canProceed ? { scale: 1.03 } : {}}
@@ -392,10 +399,15 @@ const Index = () => {
                 : "bg-secondary text-muted-foreground cursor-not-allowed"
             }`}
           >
-            {step === TOTAL_STEPS ? (
+            {editingFromReview ? (
               <>
-                <Sparkles className="w-4 h-4" />
-                Get AI Recommendations
+                <Check className="w-4 h-4" />
+                Save & Review
+              </>
+            ) : step === TOTAL_STEPS ? (
+              <>
+                Review Answers
+                <ChevronRight className="w-4 h-4" />
               </>
             ) : (
               <>
