@@ -68,42 +68,65 @@ const Index = () => {
   );
 
   const handleNext = async () => {
+    if (editingFromReview) {
+      setEditingFromReview(false);
+      setStep(REVIEW_STEP);
+      return;
+    }
     if (step < TOTAL_STEPS) {
       setStep(step + 1);
-    } else {
-      // Submit to AI
-      setIsLoading(true);
-      setStep(TOTAL_STEPS + 1);
-      const answers: QuizAnswers = {
-        subjects: selectedSubjects,
-        purpose: selectedPurpose[0] || "",
-        skillLevel: selectedLevel[0] || "",
-        learningStyle: selectedStyle[0] || "",
-        timeAvailability: selectedTime[0] || "",
-        budget: selectedBudget[0] || "",
-        subInterest: selectedSubInterest.join(", "),
-        careerObjective: selectedCareer[0] || "",
-        durationPreference: selectedDuration[0] || "",
-        languagePreference: selectedLang[0] || "",
-        certificationRequirement: selectedCert[0] || "",
-        projectPreference: selectedProject[0] || "",
-      };
-      try {
-        const { data, error } = await supabase.functions.invoke("recommend-courses", {
-          body: { answers, courses },
-        });
-        if (error) throw error;
-        setAiResults(data.recommendations || data);
-      } catch (err: any) {
-        console.error(err);
-        toast.error("Failed to get AI recommendations. Showing popularity-based results.");
-        // Fallback
-        setAiResults(null);
-      } finally {
-        setIsLoading(false);
-      }
+    } else if (step === TOTAL_STEPS) {
+      setStep(REVIEW_STEP);
     }
   };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setStep(TOTAL_STEPS + 2);
+    const answers: QuizAnswers = {
+      subjects: selectedSubjects,
+      purpose: selectedPurpose[0] || "",
+      skillLevel: selectedLevel[0] || "",
+      learningStyle: selectedStyle[0] || "",
+      timeAvailability: selectedTime[0] || "",
+      budget: selectedBudget[0] || "",
+      subInterest: selectedSubInterest.join(", "),
+      careerObjective: selectedCareer[0] || "",
+      durationPreference: selectedDuration[0] || "",
+      languagePreference: selectedLang[0] || "",
+      certificationRequirement: selectedCert[0] || "",
+      projectPreference: selectedProject[0] || "",
+    };
+    try {
+      const { data, error } = await supabase.functions.invoke("recommend-courses", {
+        body: { answers, courses },
+      });
+      if (error) throw error;
+      setAiResults(data.recommendations || data);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Failed to get AI recommendations. Showing popularity-based results.");
+      setAiResults(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditFromReview = (targetStep: number) => {
+    setEditingFromReview(true);
+    setStep(targetStep);
+  };
+
+  const reviewAnswers = [
+    { step: 1, label: "Subjects", value: selectedSubjects.join(", ") },
+    { step: 2, label: "Purpose", value: selectedPurpose[0] || "" },
+    { step: 3, label: "Sub-interests", value: selectedSubInterest.join(", ") },
+    { step: 4, label: "Skill Level", value: selectedLevel[0] || "" },
+    { step: 5, label: "Learning Style", value: selectedStyle[0] || "" },
+    { step: 6, label: "Time & Budget", value: `${selectedTime[0] || ""} · ${selectedBudget[0] || ""}` },
+    { step: 7, label: "Career & Duration", value: `${selectedCareer[0] || ""} · ${selectedDuration[0] || ""}` },
+    { step: 8, label: "Cert / Project / Language", value: `${selectedCert[0] || ""} · ${selectedProject[0] || ""} · ${selectedLang[0] || ""}` },
+  ];
 
   const handleReset = () => {
     setStep(0);
